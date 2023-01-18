@@ -13,7 +13,8 @@ import posixpath
 YB_NETWORK_NAME = "yb-net"
 YB_DOCKER_IMAGE = "yugabytedb/yugabyte"
 #YB_DOCKER_IMAGE_TAG = "latest"
-YB_DOCKER_IMAGE_TAG = "2.17.0.0-b24"
+#YB_DOCKER_IMAGE_TAG = "2.17.0.0-b24"
+YB_DOCKER_IMAGE_TAG = "2.15.2.1-b1"
 CONTAINER_CONFIG_CMD = 'docker inspect -f "{{json .ContainerConfig.%s}}" %s'
 CONTAINER_IMAGE_FIND = 'docker images %s --format "{{.ID}}"'
 
@@ -297,7 +298,7 @@ class YBDockerControl():
             if self.args.master_flags is not None:
                 master_parsed_flag_args = self.parse_flag_args(self.args.master_flags)
                 server_cmds.extend(self.get_parsed_flag_args(master_parsed_flag_args))
-            if node_id == 1:
+            if True:
                 exposed_ports.append(self.YB_MASTER_UI_PORT)
 
         elif server_type == 'yb-tserver':
@@ -325,6 +326,7 @@ class YBDockerControl():
                   "--pgsql_proxy_bind_address",
                   self.YB_POSTGRES_FORMAT_WITH_PORT.format(node_id)])
             if True:
+                exposed_ports.extend([13000])
                 exposed_ports.append(self.YB_TSERVER_UI_PORT)
                 exposed_ports.extend(self.CLIENT_PORTS)
                 if not self.args.disable_ysql:
@@ -353,7 +355,7 @@ class YBDockerControl():
 
     def create_clusters(self):
         if self.container_count > 0:
-            sys.exit("{} YugaByte nodes found. Please use --destroy if you want to destroy "
+            sys.exit("{} YugaByte nodes found. Please use 'destroy' if you want to destroy "
                      "existing cluster.".format(self.container_count))
 
         placement_list = self.get_placement_list()
