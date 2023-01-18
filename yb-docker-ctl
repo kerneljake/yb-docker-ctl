@@ -12,7 +12,8 @@ import posixpath
 
 YB_NETWORK_NAME = "yb-net"
 YB_DOCKER_IMAGE = "yugabytedb/yugabyte"
-YB_DOCKER_IMAGE_TAG = "latest"
+#YB_DOCKER_IMAGE_TAG = "latest"
+YB_DOCKER_IMAGE_TAG = "2.17.0.0-b24"
 CONTAINER_CONFIG_CMD = 'docker inspect -f "{{json .ContainerConfig.%s}}" %s'
 CONTAINER_IMAGE_FIND = 'docker images %s --format "{{.ID}}"'
 
@@ -42,7 +43,7 @@ class YBDockerControl():
     YB_MASTER_FORMAT_WITH_PORT = "{}:{}".format(YB_MASTER_FORMAT, YB_MASTER_PORT)
     YB_TSERVER_FORMAT = "yb-tserver-n{}"
     YB_TSERVER_PORT = "9100"
-    YB_TSERVER_UI_PORT = 9000
+    YB_TSERVER_UI_PORT = 9001
     YB_TSERVER_FORMAT_WITH_PORT = "{}:{}".format(YB_TSERVER_FORMAT, YB_TSERVER_PORT)
     CLIENT_PORTS = [9042, 6379]
     POSTGRES_PORT = 5433
@@ -323,7 +324,7 @@ class YBDockerControl():
                   "--enable_ysql=true",
                   "--pgsql_proxy_bind_address",
                   self.YB_POSTGRES_FORMAT_WITH_PORT.format(node_id)])
-            if node_id == 1:
+            if True:
                 exposed_ports.append(self.YB_TSERVER_UI_PORT)
                 exposed_ports.extend(self.CLIENT_PORTS)
                 if not self.args.disable_ysql:
@@ -343,7 +344,7 @@ class YBDockerControl():
         docker_cmd = ['docker', 'run', '--name', container_name, '--hostname', container_name,
                       '--privileged']
         for port in exposed_ports:
-            docker_cmd.extend(['-p', '{}:{}'.format(port, port)])
+            docker_cmd.extend(['-p', '127.0.0.' + str(node_id) + ':{}:{}'.format(port, port)])
         docker_cmd.extend(base_cmd)
         docker_cmd.extend(server_cmds)
         print (' '.join(docker_cmd))
